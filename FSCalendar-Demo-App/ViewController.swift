@@ -32,14 +32,15 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, FSCalendarD
     override func viewDidLoad() {
         super.viewDidLoad()
         dayshowLbl.isHidden = true
-  
+        calendar.today = nil
+        
         calendar.delegate = self
         calendar.dataSource = self
         if UIDevice.current.model.hasPrefix("iPad") {
         
         }
         self.view.addGestureRecognizer(self.scopeGesture)
-        self.calendar.select(Date())
+//        self.calendar.select(Date())
         calendar.allowsMultipleSelection = true
         calendar.customizeCalenderAppearance()
         
@@ -63,6 +64,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, FSCalendarD
         }
     }
 
+    
     func calendar(_ calendar: FSCalendar, didDeselect date: Date, at monthPosition: FSCalendarMonthPosition) {
             
         print("diddeselect date \(self.dateFormatter.string(from: date))")
@@ -80,6 +82,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, FSCalendarD
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         true
     }
+  
+    
     func calendar(_ calendar: FSCalendar, shouldDeselect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let dateString = self.dateFormatter.string(from: date)
         if isBooked,bookingDates.contains(dateString) {
@@ -92,7 +96,25 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, FSCalendarD
         
     }
     
+    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, titleSelectionColorFor date: Date) -> UIColor? {
+        let dateString : String = self.dateFormatter.string(from:date)
+        
+        if self.bookingDates.contains(dateString) {
+            return .white
+        } else {
+            return nil
+        }
+    }
    
+    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, fillSelectionColorFor date: Date) -> UIColor? {
+        let dateString : String = self.dateFormatter.string(from:date)
+        
+        if self.bookingDates.contains(dateString) {
+            return .red
+        } else {
+            return nil
+        }
+    }
     
 //    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, eventSelectionColorsFor date: Date) -> [UIColor]? {
 //        let dateString = self.dateFormatter.string(from: date)
@@ -125,8 +147,10 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, FSCalendarD
     }
     
     @IBAction func bookedBtnTapped(_ sender: Any) {
+        
         dayshowLbl.isHidden = false
         isBooked = true
+        calendar.reloadData()
         toast(Title: "Message", text: "Succesfully booked", font: .systemFont(ofSize: 16))
         let stingBookdates = bookingDates.joined(separator: "  ")
         dayshowLbl.text = stingBookdates
